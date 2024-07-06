@@ -3,9 +3,13 @@ import Dice from "/components/Dice"
 import {nanoid} from "nanoid"
 import Confetti from "react-confetti"
 
-import diceRollSound from "/public/dice-roll-sound.mp3"
-import clickSound from "/public/click-sound.mp3"
-import winnerMusic from "/public/winner-music.mp3"
+import diceRollSoundURL from "/public/dice-roll-sound.mp3"
+import clickSoundURL from "/public/click-sound.mp3"
+import winnerMusicURL from "/public/winner-music.mp3"
+
+const diceRollSound = new Audio(diceRollSoundURL)
+const clickSound = new Audio(clickSoundURL)
+const winnerMusic = new Audio(winnerMusicURL)
 
 export default function App() {
 
@@ -24,17 +28,21 @@ export default function App() {
       // Preload audio files
   React.useEffect(() => {
     const sounds = [diceRollSound, clickSound, winnerMusic]
-    sounds.forEach((sound) => {
-      const audio = new Audio(sound)
-      audio.load()
-    })
+    sounds.forEach((sound) => sound.load())
   }, [])
 
   function playAudio(audioFile) {
-    const audio = new Audio(audioFile);
-    audio.play();
-    audio.addEventListener("ended", () => audio.remove());
-}
+    if (audioFile.paused) {
+      audioFile.currentTime = 0;
+      audioFile.play();
+    }
+  }
+
+//   function playAudio(audioFile) {
+//     const audio = new Audio(audioFile);
+//     audio.play();
+//     audio.addEventListener("ended", () => audio.remove());
+// }
 
     function generateNewDice() {
         return {
@@ -54,9 +62,7 @@ export default function App() {
 
     function rollDice() {
         if (!tenzies) {
-            setDice(prevDice => prevDice.map(die => {
-                return die.isHeld ? die : generateNewDice()
-            }))
+            setDice(prevDice => prevDice.map(die => (die.isHeld ? die : generateNewDice())))
             playAudio(diceRollSound)
     
         // } else {
@@ -82,11 +88,11 @@ export default function App() {
     }
 
     function holdDice(id) {
-        setDice(prevDice => prevDice.map(die => {
-            return die.id === id ?
-                {...die, isHeld: !die.isHeld} :
-                die
-        }))
+        setDice(prevDice => 
+            prevDice.map(die =>
+                die.id === id ? {...die, isHeld: !die.isHeld} : die
+            )
+        )
         playAudio(clickSound)
     }
 
@@ -94,10 +100,10 @@ export default function App() {
         <main>
             {tenzies && <Confetti />}
             <h1 className="title">Tenzies</h1>
-            <p className="instructions">Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
-            <div className="dice-container">
-                {diceElements}
-            </div>
+            <p className="instructions">
+                Roll until all dice are the same. Click each die to freeze it at its current value between rolls.
+            </p>
+            <div className="dice-container">{diceElements}</div>
             <button onClick={tenzies ? handleNewGame : rollDice}>
                 {tenzies ? "New Game" : "Roll"}
             </button>
