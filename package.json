@@ -1,8 +1,8 @@
 {
+  "homepage": "https://vhalen0515.github.io/tenzies-react-game/",
   "name": "tenzies-react-game",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://vhalen0515.github.io/tenzies-react-game/",
   "type": "module",
   "scripts": {
     "pre-deploy": "npm run build",
