@@ -17,8 +17,7 @@ export default function App() {
         const allValuesEqual = dice.every((die, _, dice) => die.value === dice[0].value);
         if (heldDice && allValuesEqual) {
             setTenzies(true)
-            const audio = new Audio(winnerMusic)
-            audio.play()
+            playAudio(winnerMusic)
         }
     },[dice])
 
@@ -30,6 +29,12 @@ export default function App() {
       audio.load()
     })
   }, [])
+
+  function playAudio(audioFile) {
+    const audio = new Audio(audioFile);
+    audio.play();
+    audio.addEventListener("ended", () => audio.remove());
+}
 
     function generateNewDice() {
         return {
@@ -52,12 +57,10 @@ export default function App() {
             setDice(prevDice => prevDice.map(die => {
                 return die.isHeld ? die : generateNewDice()
             }))
-
-            const audio = new Audio(diceRollSound)
-            audio.play()
-
-        } else {
-            window.location.reload()
+            playAudio(diceRollSound)
+    
+        // } else {
+        //     window.location.reload()
             // setTenzies(false)
             // setDice(allNewDice())
         }
@@ -73,14 +76,18 @@ export default function App() {
             />
     ))
 
+    function handleNewGame(){
+        setTenzies(false)
+        setDice(allNewDice())
+    }
+
     function holdDice(id) {
         setDice(prevDice => prevDice.map(die => {
             return die.id === id ?
                 {...die, isHeld: !die.isHeld} :
                 die
         }))
-        const audio = new Audio(clickSound)
-        audio.play()
+        playAudio(clickSound)
     }
 
     return (
@@ -91,7 +98,7 @@ export default function App() {
             <div className="dice-container">
                 {diceElements}
             </div>
-            <button onClick={rollDice}>
+            <button onClick={tenzies ? handleNewGame : rollDice}>
                 {tenzies ? "New Game" : "Roll"}
             </button>
         </main>
