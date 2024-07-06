@@ -3,6 +3,10 @@ import Dice from "/components/Dice"
 import {nanoid} from "nanoid"
 import Confetti from "react-confetti"
 
+import diceRollSound from "/public/dice-roll-sound.mp3"
+import clickSound from "/public/click-sound.mp3"
+import winnerMusic from "/public/winner-music.mp3"
+
 export default function App() {
 
     const [dice, setDice] = React.useState(allNewDice())
@@ -13,10 +17,19 @@ export default function App() {
         const allValuesEqual = dice.every((die, _, dice) => die.value === dice[0].value);
         if (heldDice && allValuesEqual) {
             setTenzies(true)
-            const winnerMusic = new Audio('./winner-music.mp3')
-            winnerMusic.play()
+            const audio = new Audio(winnerMusic)
+            audio.play()
         }
     },[dice])
+
+      // Preload audio files
+  React.useEffect(() => {
+    const sounds = [diceRollSound, clickSound, winnerMusic]
+    sounds.forEach((sound) => {
+      const audio = new Audio(sound)
+      audio.load()
+    })
+  }, [])
 
     function generateNewDice() {
         return {
@@ -24,8 +37,6 @@ export default function App() {
             isHeld: false,
             id: nanoid()
         }
-        // const startSound = new Audio('./start-game-sound.mp3')
-        // startSound.play()
     }
 
     function allNewDice() {
@@ -42,7 +53,7 @@ export default function App() {
                 return die.isHeld ? die : generateNewDice()
             }))
 
-            const audio = new Audio('./dice-roll-sound.mp3')
+            const audio = new Audio(diceRollSound)
             audio.play()
 
         } else {
@@ -68,8 +79,8 @@ export default function App() {
                 {...die, isHeld: !die.isHeld} :
                 die
         }))
-        const clickSound = new Audio('./click-sound.mp3')
-        clickSound.play()
+        const audio = new Audio(clickSound)
+        audio.play()
     }
 
     return (
