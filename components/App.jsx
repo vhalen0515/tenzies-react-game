@@ -3,46 +3,30 @@ import Dice from "/components/Dice"
 import {nanoid} from "nanoid"
 import Confetti from "react-confetti"
 
-import diceRollSoundURL from "/public/dice-roll-sound.mp3"
-import clickSoundURL from "/public/click-sound.mp3"
-import winnerMusicURL from "/public/winner-music.mp3"
-
-const diceRollSound = new Audio(diceRollSoundURL)
-const clickSound = new Audio(clickSoundURL)
-const winnerMusic = new Audio(winnerMusicURL)
+//test
+const diceRollSound = new Audio('./dice-roll-sound.mp3')
+const clickSound = new Audio('./click-sound.mp3')
+const winnerMusic = new Audio('./winner-music.mp3')
 
 export default function App() {
 
     const [dice, setDice] = React.useState(allNewDice())
     const [tenzies, setTenzies] = React.useState(false)
 
+    //test
+    React.useEffect(() => {
+        diceRollSound.preload = 'auto'
+        clickSound.preload = 'auto'
+    }, [])
+
     React.useEffect(() => {
         const heldDice = dice.every(held => held.isHeld)
         const allValuesEqual = dice.every((die, _, dice) => die.value === dice[0].value);
         if (heldDice && allValuesEqual) {
             setTenzies(true)
-            playAudio(winnerMusic)
+            winnerMusic.play()
         }
     },[dice])
-
-      // Preload audio files
-  React.useEffect(() => {
-    const sounds = [diceRollSound, clickSound, winnerMusic]
-    sounds.forEach((sound) => sound.load())
-  }, [])
-
-  function playAudio(audioFile) {
-    if (audioFile.paused) {
-      audioFile.currentTime = 0;
-      audioFile.play();
-    }
-  }
-
-//   function playAudio(audioFile) {
-//     const audio = new Audio(audioFile);
-//     audio.play();
-//     audio.addEventListener("ended", () => audio.remove());
-// }
 
     function generateNewDice() {
         return {
@@ -62,11 +46,19 @@ export default function App() {
 
     function rollDice() {
         if (!tenzies) {
-            setDice(prevDice => prevDice.map(die => (die.isHeld ? die : generateNewDice())))
-            playAudio(diceRollSound)
-    
-        // } else {
-        //     window.location.reload()
+            setDice(prevDice => prevDice.map(die => {
+                return die.isHeld ? die : generateNewDice()
+            }))
+
+            //test
+            diceRollSound.currentTime = 0
+            diceRollSound.play()
+
+            // const audio = new Audio('./dice-roll-sound.mp3')
+            // audio.play()
+
+        } else {
+            window.location.reload()
             // setTenzies(false)
             // setDice(allNewDice())
         }
@@ -82,29 +74,30 @@ export default function App() {
             />
     ))
 
-    function handleNewGame(){
-        setTenzies(false)
-        setDice(allNewDice())
-    }
-
     function holdDice(id) {
-        setDice(prevDice => 
-            prevDice.map(die =>
-                die.id === id ? {...die, isHeld: !die.isHeld} : die
-            )
-        )
-        playAudio(clickSound)
+        setDice(prevDice => prevDice.map(die => {
+            return die.id === id ?
+                {...die, isHeld: !die.isHeld} :
+                die
+        }))
+
+        //test
+        clickSound.currentTime = 0
+        clickSound.play()
+
+        // const clickSound = new Audio('./click-sound.mp3')
+        // clickSound.play()
     }
 
     return (
         <main>
             {tenzies && <Confetti />}
             <h1 className="title">Tenzies</h1>
-            <p className="instructions">
-                Roll until all dice are the same. Click each die to freeze it at its current value between rolls.
-            </p>
-            <div className="dice-container">{diceElements}</div>
-            <button onClick={tenzies ? handleNewGame : rollDice}>
+            <p className="instructions">Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
+            <div className="dice-container">
+                {diceElements}
+            </div>
+            <button onClick={rollDice}>
                 {tenzies ? "New Game" : "Roll"}
             </button>
         </main>
